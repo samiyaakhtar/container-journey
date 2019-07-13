@@ -1,3 +1,4 @@
+azure==4.0.0
 azure_common==1.1.23
 azure-storage==0.36.0
 azure-cosmosdb-nspkg==2.0.2

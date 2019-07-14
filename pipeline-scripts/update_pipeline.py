@@ -3,11 +3,17 @@ from azure.cosmosdb.table.models import Entity
 import sys
 import uuid
 
+def generate_row_key():
+    return str(uuid.uuid4()).split('-')[-1]
+
 # Does a look up based on filter_name:filter_value for the pipeline to update its details
-def update_pipeline(account_name, account_key, table_name, filter_name, filter_value, name1, value1, name2=None, value2=None):
+def update_pipeline(account_name, account_key, table_name, partition_name, filter_name, filter_value, name1, value1, name2=None, value2=None):
     table_service = TableService(account_name=account_name, account_key=account_key)
     tasks = table_service.query_entities(table_name, filter=filter_name + " eq '"+ filter_value + "'")
+
+    count = 0
     for task in tasks:
+        count = count + 1
         add = False
         print(task)
         if name1 in task and task[name1] != value1:
@@ -23,18 +29,41 @@ def update_pipeline(account_name, account_key, table_name, filter_name, filter_v
             table_service.update_entity(table_name, task)
             print("Updating existing entry")
         else:
-            guid = str(uuid.uuid4()).split('-')[-1]
+            guid = generate_row_key()
             task["RowKey"] = guid
             table_service.insert_entity(table_name, task)
             print("Adding new entry since one already existed")
         print(task)
         break
 
+    if count == 0:
+        add_pipeline(account_name, account_key, table_name, partition_name, filter_name, filter_value, name1, value1, name2, value2)
     print("Done")
+
+def add_pipeline(account_name, account_key, table_name, partition_name, filter_name, filter_value, name1, value1, name2=None, value2=None):
+    print("Adding a new entry")
+    new_entry = {}
+    new_entry["RowKey"] = generate_row_key()
+    new_entry["PartitionKey"] = partition_name
+    new_entry[filter_name] = filter_value
+    new_entry[name1] = value1
+    new_entry[name2] = value2
+    print(new_entry)
+    table_service = TableService(account_name=account_name, account_key=account_key)
+    table_service.insert_entity(table_name, new_entry)
+
+
+def list_all_entities(account_name, account_key, table_name):
+    table_service = TableService(account_name=account_name, account_key=account_key)
+    tasks = table_service.query_entities(table_name)
+    for task in tasks:
+        print(task)
 
 if __name__ == "__main__":
     print(len(sys.argv))
-    if len(sys.argv) == 8:
-        update_pipeline(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7])
-    elif len(sys.argv) == 10:
-        update_pipeline(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9])
+    if len(sys.argv) == 9:
+        update_pipeline(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8])
+    elif len(sys.argv) == 11:
+        update_pipeline(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10])
+    elif len(sys.argv) == 4:
+        list_all_entities(sys.argv[1], sys.argv[2], sys.argv[3])

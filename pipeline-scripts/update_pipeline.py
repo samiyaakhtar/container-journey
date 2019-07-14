@@ -6,7 +6,7 @@ import uuid
 def generate_row_key():
     return str(uuid.uuid4()).split('-')[-1]
 
-# Does a look up based on filter_name:filter_value for the pipeline to update its details
+# Performs a look up based on filter_name:filter_value for the pipeline to update its details
 def update_pipeline(account_name, account_key, table_name, partition_name, filter_name, filter_value, name1, value1, name2=None, value2=None):
     table_service = TableService(account_name=account_name, account_key=account_key)
     entities = table_service.query_entities(table_name, filter=filter_name + " eq '"+ filter_value + "'")
@@ -15,7 +15,6 @@ def update_pipeline(account_name, account_key, table_name, partition_name, filte
     for entity in entities:
         count = count + 1
         add = False
-        print(entity)
         if name1 in entity and entity[name1] != value1:
             add = True
         entity[name1] = value1

@@ -9,12 +9,13 @@ def update_pipeline(account_name, account_key, table_name, filter_name, filter_v
     tasks = table_service.query_entities(table_name, filter=filter_name + " eq '"+ filter_value + "'")
     for task in tasks:
         add = False
-        if task[name1] != None and task[name1] != value1:
+        print(task)
+        if name1 in task and task[name1] != value1:
             add = True
         task[name1] = value1
 
         if name2 != None and value2 != None:
-            if task[name2] != None and task[name2] != value2:
+            if name2 in task and task[name2] != value2:
                 add = True
             task[name2] = value2
         

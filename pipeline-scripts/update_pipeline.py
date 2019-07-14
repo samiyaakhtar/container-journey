@@ -9,31 +9,31 @@ def generate_row_key():
 # Does a look up based on filter_name:filter_value for the pipeline to update its details
 def update_pipeline(account_name, account_key, table_name, partition_name, filter_name, filter_value, name1, value1, name2=None, value2=None):
     table_service = TableService(account_name=account_name, account_key=account_key)
-    tasks = table_service.query_entities(table_name, filter=filter_name + " eq '"+ filter_value + "'")
+    entities = table_service.query_entities(table_name, filter=filter_name + " eq '"+ filter_value + "'")
 
     count = 0
-    for task in tasks:
+    for entity in entities:
         count = count + 1
         add = False
-        print(task)
-        if name1 in task and task[name1] != value1:
+        print(entity)
+        if name1 in entity and entity[name1] != value1:
             add = True
-        task[name1] = value1
+        entity[name1] = value1
 
         if name2 != None and value2 != None:
-            if name2 in task and task[name2] != value2:
+            if name2 in entity and entity[name2] != value2:
                 add = True
-            task[name2] = value2
+            entity[name2] = value2
         
         if add == False:
-            table_service.update_entity(table_name, task)
+            table_service.update_entity(table_name, entity)
             print("Updating existing entry")
         else:
             guid = generate_row_key()
-            task["RowKey"] = guid
-            table_service.insert_entity(table_name, task)
+            entity["RowKey"] = guid
+            table_service.insert_entity(table_name, entity)
             print("Adding new entry since one already existed")
-        print(task)
+        print(entity)
         break
 
     if count == 0:
@@ -55,9 +55,9 @@ def add_pipeline(account_name, account_key, table_name, partition_name, filter_n
 
 def list_all_entities(account_name, account_key, table_name):
     table_service = TableService(account_name=account_name, account_key=account_key)
-    tasks = table_service.query_entities(table_name)
-    for task in tasks:
-        print(task)
+    entities = table_service.query_entities(table_name)
+    for entity in entities:
+        print(entity)
 
 if __name__ == "__main__":
     print(len(sys.argv))

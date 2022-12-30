@@ -36,7 +36,7 @@
     "@types/react-dom": "^16.8.3",
     "azure-storage": "^2.10.3",
     "chai": "^4.2.0",
-    "mocha": "^6.2.0",
+    "mocha": "^10.2.0",
     "nodemon": "^1.19.1",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.3"
